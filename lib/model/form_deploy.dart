@@ -8,6 +8,7 @@ class FormDeploy {
   bool isRequired;
   String field;
   String verifyMsg;
+  String type;
 
   FormDeploy(
       {this.label,
@@ -18,7 +19,8 @@ class FormDeploy {
         this.inputModel,
         this.isRequired,
         this.field,
-        this.verifyMsg});
+        this.verifyMsg,
+        this.type});
 
   FormDeploy.fromJson(Map<String, dynamic> json) {
     label = json['label'];
@@ -30,6 +32,7 @@ class FormDeploy {
     isRequired = json['isRequired'];
     field = json['field'];
     verifyMsg = json['verifyMsg'];
+    type = json['type'];
   }
 
   Map<String, dynamic> toJson() {
@@ -43,6 +46,7 @@ class FormDeploy {
     data['isRequired'] = this.isRequired;
     data['field'] = this.field;
     data['verifyMsg'] = this.verifyMsg;
+    data['type'] = this.type;
     return data;
   }
 }

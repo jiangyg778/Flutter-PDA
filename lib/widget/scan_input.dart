@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bili_app/util/color.dart';
 
 ///输入框，自定义widget
-class LoginInput extends StatefulWidget {
+class ScanInput extends StatefulWidget {
   final String label; //标题名称
   final String placeholder; //提示文字
   final bool isRequired; //是否必填
+  final ValueChanged onFocus;
 
   final ValueChanged<String> onChanged;
   final ValueChanged<bool> focusChanged;
@@ -14,10 +15,11 @@ class LoginInput extends StatefulWidget {
   final bool obscureText; //是否获取焦点
   final TextInputType keyboardType;
 
-  const LoginInput(this.label, this.placeholder,
+  const ScanInput(this.label, this.placeholder,
       {Key key,
       this.onChanged,
       this.focusChanged,
+      this.onFocus,
       this.lineStretch = false,
       this.obscureText = false,
       this.isRequired = false,
@@ -25,18 +27,24 @@ class LoginInput extends StatefulWidget {
       : super(key: key);
 
   @override
-  _LoginInputState createState() => _LoginInputState();
+  _ScanInputState createState() => _ScanInputState();
 }
 
-class _LoginInputState extends State<LoginInput> {
+class _ScanInputState extends State<ScanInput> {
   final _focusNode = FocusNode();
+  final _controller = TextEditingController();
 
   @override
   void initState() {
+    _controller.text = '123';
+
     super.initState();
     //是否获取光标的监听
     _focusNode.addListener(() {
       print("Has focus: ${_focusNode.hasFocus}");
+      if (_focusNode.hasFocus) {
+        widget.onFocus(true);
+      }
       if (widget.focusChanged != null) {
         widget.focusChanged(_focusNode.hasFocus);
       }
@@ -69,7 +77,12 @@ class _LoginInputState extends State<LoginInput> {
                     ),
                   ],
                 )),
-            _input()
+            _input(),
+            Icon(
+              Icons.center_focus_strong_outlined,
+              size: 43,
+              color: Colors.grey,
+            )
           ],
         ),
         Padding(
@@ -86,6 +99,7 @@ class _LoginInputState extends State<LoginInput> {
   _input() {
     return Expanded(
         child: TextField(
+      controller: _controller,
       focusNode: _focusNode,
       onChanged: widget.onChanged,
       obscureText: widget.obscureText,

@@ -5,6 +5,7 @@ import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/util/toast.dart';
 import 'package:flutter_bili_app/widget/appbar.dart';
 import 'package:flutter_bili_app/widget/login_input.dart';
+import 'package:flutter_bili_app/widget/scan_input.dart';
 import 'package:flutter_easy_permission/constants.dart';
 import 'package:flutter_easy_permission/flutter_easy_permission.dart';
 import 'package:flutter_scankit/flutter_scankit.dart';
@@ -29,12 +30,15 @@ class RegistrationPage extends StatefulWidget {
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
+const CNP_LIST = {'input': LoginInput};
+
 class _RegistrationPageState extends State<RegistrationPage> {
   List<FormDeploy> dataList = []; //接口返回的配置信息
   Map dataForm = {}; //表达提交的数据
   FlutterScankit scanKit;
   String code = "123";
   bool isCustom;
+  //这里就是关键的代码，定义一个key
 
   @override
   void initState() {
@@ -49,7 +53,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "inputModel": 0,
         "isRequired": true,
         "field": "warehouse",
-        "verifyMsg": "仓库编码不能为空"
+        "verifyMsg": "仓库编码不能为空",
+        "type": "input"
       },
       {
         "label": "商家名称",
@@ -60,7 +65,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "inputModel": 0,
         "isRequired": false,
         "field": "merchant",
-        "verifyMsg": "仓库编码不能为空"
+        "verifyMsg": "仓库编码不能为空",
+        "type": "scan"
       },
       {
         "label": "商家名称",
@@ -71,7 +77,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "inputModel": 0,
         "isRequired": false,
         "field": "merchant",
-        "verifyMsg": "仓库编码不能为空"
+        "verifyMsg": "仓库编码不能为空",
+        "type": "input"
       },
       {
         "label": "商家名称",
@@ -82,7 +89,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "inputModel": 0,
         "isRequired": false,
         "field": "merchant",
-        "verifyMsg": "仓库编码不能为空"
+        "verifyMsg": "仓库编码不能为空",
+        "type": "input"
       },
     ];
     // 模拟请求赋值
@@ -118,17 +126,35 @@ class _RegistrationPageState extends State<RegistrationPage> {
             //自适应键盘弹起，防止遮挡
             children: List.generate(dataList.length, (index) {
           bool isRequired = dataList[index].isRequired;
-          return LoginInput(
-            "${dataList[index].label}",
-            "${dataList[index].placeholder}",
-            isRequired: isRequired,
-            keyboardType: TextInputType.number,
-            lineStretch: true,
-            onChanged: (text) {
-              // 动态添加字段和值到dataForm
-              dataForm.addAll({"${dataList[index].field}": text});
-            },
-          );
+          //自定义组件
+          Widget cnp;
+          if (dataList[index].type == 'input') {
+            cnp = LoginInput(
+              "${dataList[index].label}",
+              "${dataList[index].placeholder}",
+              isRequired: isRequired,
+              keyboardType: TextInputType.number,
+              lineStretch: true,
+              onChanged: (text) {
+                // 动态添加字段和值到dataForm
+                dataForm.addAll({"${dataList[index].field}": text});
+              },
+            );
+          } else if (dataList[index].type == 'text') {
+            cnp = Text('1234');
+          } else if (dataList[index].type == 'scan') {
+            cnp = ScanInput('名词', '请扫码', onFocus: (text) async {
+              isCustom = false;
+              if (!await FlutterEasyPermission.has(
+                  perms: _permissions, permsGroup: _permissionGroup)) {
+                FlutterEasyPermission.request(
+                    perms: _permissions, permsGroup: _permissionGroup);
+              } else {
+                startScan();
+              }
+            });
+          }
+          return cnp;
         })),
       ),
       bottomNavigationBar: new BottomAppBar(
@@ -147,16 +173,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             borderRadius: BorderRadius.circular(4)),
                         height: 40,
                         onPressed: () async {
-                          isCustom = false;
-                          if (!await FlutterEasyPermission.has(
-                              perms: _permissions,
-                              permsGroup: _permissionGroup)) {
-                            FlutterEasyPermission.request(
-                                perms: _permissions,
-                                permsGroup: _permissionGroup);
-                          } else {
-                            startScan();
-                          }
+                          // isCustom = false;
+                          // if (!await FlutterEasyPermission.has(
+                          //     perms: _permissions,
+                          //     permsGroup: _permissionGroup)) {
+                          //   FlutterEasyPermission.request(
+                          //       perms: _permissions,
+                          //       permsGroup: _permissionGroup);
+                          // } else {
+                          //   startScan();
+                          // }
                         },
                         disabledColor: primary[50],
                         color: Colors.grey,
@@ -178,7 +204,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             style:
                                 TextStyle(color: Colors.white, fontSize: 16))),
                     SizedBox(width: 20),
-                    Text(code)
+                    Text(code != null ? code : "")
                   ],
                 ),
               )
@@ -191,7 +217,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<void> startScan() async {
     try {
-      await scanKit.startScan(scanTypes: [ScanTypes.ALL]);
+      final res = await scanKit.startScan(scanTypes: [ScanTypes.ALL]);
+      print("${res}8888881");
     } on PlatformException {}
   }
 
