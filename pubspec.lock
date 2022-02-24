@@ -209,6 +209,20 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_easy_permission:
+    dependency: "direct main"
+    description:
+      name: flutter_easy_permission
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.2"
+  flutter_scankit:
+    dependency: "direct main"
+    description:
+      name: flutter_scankit
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
